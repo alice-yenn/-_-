@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>在星輝斑斕裡放鴿｜爛藉口生成器</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts：思源黑體與浪漫襯線體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        /* 全域星輝斑斕夜空配色與字體 */
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: radial-gradient(ellipse at top, #1B2447 0%, #0D1226 55%, #070A17 100%);
+            color: #F8FAFC;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .font-serif-title {
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        /* 星光呼吸發光標題 */
+        .starlight-title {
+            text-shadow: 0 0 18px rgba(253, 224, 71, 0.55), 0 0 36px rgba(167, 139, 250, 0.45);
+        }
+
+        /* 手繪草圖指定：會微微上下浮動的輸入框 */
+        @keyframes gentleFloat {
+            0%, 100% {
+                transform: translateY(0px);
+                box-shadow: 0 12px 32px rgba(139, 92, 246, 0.28), 0 0 0 2px rgba(253, 224, 71, 0.35);
+            }
+            50% {
+                transform: translateY(-9px);
+                box-shadow: 0 22px 42px rgba(139, 92, 246, 0.42), 0 0 18px 2px rgba(253, 224, 71, 0.6);
+            }
+        }
+
+        .floating-input-box {
+            animation: gentleFloat 3.6s ease-in-out infinite;
+            background: rgba(23, 30, 62, 0.78);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2.5px solid rgba(253, 224, 71, 0.65);
+        }
+
+        .floating-input-box:focus-within {
+            border-color: #FDE047;
+            box-shadow: 0 0 28px rgba(253, 224, 71, 0.65);
+        }
+
+        /* 提醒輸入閃爍特效 */
+        @keyframes shakeWarn {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+        .animate-shake-warn {
+            animation: shakeWarn 0.45s ease-in-out;
+            border-color: #FB7185 !important;
+        }
+
+        /* 星夜玻璃卡片與立體按鈕 */
+        .star-card {
+            background: rgba(20, 27, 56, 0.82);
+            backdrop-filter: blur(12px);
+            border: 2.5px solid rgba(253, 224, 71, 0.45);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.55);
+            border-radius: 24px;
+        }
+
+        .comic-btn {
+            border: 2.5px solid #1E1B4B;
+            box-shadow: 4px 4px 0px #090D1E;
+            transition: all 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+
+        .comic-btn:hover {
+            transform: translate(-1px, -2px);
+            box-shadow: 5px 6px 0px #090D1E;
+        }
+
+        .comic-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #090D1E;
+        }
+
+        /* 畫布樣式 */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* 復古信箋橫線背景（第四階段字條） */
+        .letter-paper {
+            background-color: #FFFDF7;
+            background-image: repeating-linear-gradient(
+                transparent,
+                transparent 31px,
+                #E5DCCB 31px,
+                #E5DCCB 32px
+            );
+            line-height: 32px;
+        }
+
+        /* 字條展開動畫 */
+        @keyframes popUnfold {
+            0% {
+                opacity: 0;
+                transform: scaleY(0.1) scaleX(0.82) translateY(-40px);
+            }
+            65% {
+                opacity: 1;
+                transform: scaleY(1.03) scaleX(1.01) translateY(3px);
+            }
+            100% {
+                opacity: 1;
+                transform: scaleY(1) scaleX(1) translateY(0);
+            }
+        }
+
+        .animate-unfold {
+            animation: popUnfold 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            transform-origin: top center;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-1deg); }
+            50% { transform: rotate(1.5deg); }
+        }
+
+        .animate-wiggle {
+            animation: wiggle 0.3s ease-in-out;
+        }
+
+        /* 印章效果 */
+        .stamp-badge {
+            border: 3px solid #D9483B;
+            color: #D9483B;
+            transform: rotate(-6deg);
+            box-shadow: inset 0 0 0 1px rgba(217, 72, 59, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between relative overflow-hidden">
+
+    <!-- 全螢幕背景星空裝飾畫布（流星與閃爍星辰） -->
+    <canvas id="bg-starfield" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- 頂部浮動工具列（僅保留精簡標題與音效開關） -->
+    <header class="w-full max-w-3xl flex items-center justify-between px-4 pt-3 sm:pt-5 z-20">
+        <div class="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#CBD5E1] bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15">
+            <span>✨</span>
+            <span>爛藉口生成器</span>
+        </div>
+
+        <button id="sound-toggle-btn" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#FDE047] transition cursor-pointer" title="切換音效">
+            <span id="sound-icon">🔊</span>
+            <span id="sound-text">星夜音效</span>
+        </button>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- 第一階段：首頁「在星輝斑斕裡放鴿」（完全對應手繪草圖配置） -->
+    <!-- ===================================================================== -->
+    <section id="stage-home" class="w-full flex-1 flex flex-col items-center justify-between z-10 relative pt-2 sm:pt-4">
+        
+        <!-- 上半部：標題 ＋ 微微上下浮動的輸入框 -->
+        <div class="w-full max-w-xl px-4 flex flex-col items-center text-center mt-1 sm:mt-3">
+            <h1 class="font-serif-title text-3xl sm:text-5xl font-black tracking-wider text-[#FEF08A] starlight-title mb-2">
+                在星輝斑斕裡放鴿
+            </h1>
+            <p class="text-xs sm:text-sm font-medium text-[#CBD5E1]/90 mb-5 sm:mb-7 tracking-wide">
+                輸入想逃避的約會，再抓住下方奔跑的理由鴿子放飛它 ✨
+            </p>
+
+            <!-- 會微微上下浮動的框（草圖核心元素） -->
+            <div id="floating-box" class="floating-input-box w-full rounded-3xl p-4 sm:p-5 transition-colors">
+                <div class="flex items-center gap-2 mb-2 text-left">
+                    <span class="text-base">🕊️</span>
+                    <label for="event-input" class="text-xs sm:text-sm font-bold text-[#FDE047] tracking-wide">
+                        輸入你想放的鴿子（事件）
+                    </label>
+                </div>
+                <input 
+                    type="text" 
+                    id="event-input" 
+                    maxlength="24"
+                    placeholder="輸入你想放的鴿子（例如：系學會開會、早八微積分...）" 
+                    class="w-full px-4 py-3 text-base sm:text-lg font-bold bg-[#0B1024]/80 text-white border-2 border-[#6366F1]/50 rounded-2xl focus:outline-none focus:border-[#FDE047] placeholder-[#64748B] transition"
+                >
+                <!-- 懶人快選標籤 -->
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 mt-3">
+                    <span class="text-[11px] font-bold text-[#94A3B8]">✨ 點擊快填：</span>
+                    <button type="button" class="quick-event-chip text-xs font-bold bg-white/10 hover:bg-[#FDE047]/20 text-[#E2E8F0] hover:text-[#FEF08A] border border-white/20 px-2.5 py-1 rounded-full transition cursor-pointer">系學會開會</button>
+                    <button type="button" class="quick-event-chip text-xs font-bold bg-white/10 hover:bg-[#FDE047]/20 text-[#E2E8F0] hover:text-[#FEF08A] border border-white/20 px-2.5 py-1 rounded-full transition cursor-pointer">早八微積分</button>
+                    <button type="button" class="quick-event-chip text-xs font-bold bg-white/10 hover:bg-[#FDE047]/20 text-[#E2E8F0] hover:text-[#FEF08A] border border-white/20 px-2.5 py-1 rounded-full transition cursor-pointer">週五晚上聚餐</button>
+                    <button type="button" class="quick-event-chip text-xs font-bold bg-white/10 hover:bg-[#FDE047]/20 text-[#E2E8F0] hover:text-[#FEF08A] border border-white/20 px-2.5 py-1 rounded-full transition cursor-pointer">週末逛街</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 下半部：圓弧星球地面 ＋ 很多鴿子在地上跑（頭頂隨機放 3 種理由氣泡） -->
+        <div class="w-full relative h-[270px] sm:h-[310px] mt-auto">
+            <!-- 操作引導提示 -->
+            <div class="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 z-20 bg-[#1E1B4B]/85 border border-[#FDE047]/50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold text-[#FEF08A] whitespace-nowrap shadow-lg">
+                👇 點擊抓住一隻頭頂有理由的奔跑鴿子！
+            </div>
+            <!-- 互動地面鴿子群畫布 -->
+            <canvas id="home-pigeons-canvas" class="cursor-pointer"></canvas>
+        </div>
+    </section>
+
+
+    <!-- ===================================================================== -->
+    <!-- 第二階段 & 第三階段：彈弓拉弓發射 ＋ 飛鴿傳書過場畫布 -->
+    <!-- ===================================================================== -->
+    <section id="stage-canvas" class="hidden w-full max-w-2xl px-4 my-auto flex-col gap-3 z-10">
+        <!-- 頂部狀態資訊列：目標事件 ＋ 荒謬程度儀表板 -->
+        <div class="star-card p-3.5 sm:p-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 pb-2 border-b border-white/15">
+                <div class="flex items-center gap-2 text-xs sm:text-sm font-bold">
+                    <span class="bg-[#FDE047] text-[#1E1B4B] px-2.5 py-0.5 rounded-full font-black">放飛目標</span>
+                    <span id="display-target-event" class="text-[#FEF08A] font-black truncate max-w-[150px] sm:max-w-[230px]">週五晚上聚餐</span>
+                    <span id="display-selected-reason" class="text-xs bg-white/15 text-white px-2 py-0.5 rounded-full">🤒 身體不適</span>
+                </div>
+                <button id="back-to-home-btn" class="text-xs font-bold text-[#94A3B8] hover:text-[#FDE047] underline cursor-pointer">
+                    ↺ 重選事件與鴿子
+                </button>
+            </div>
+
+            <!-- 荒謬指數即時儀表板 -->
+            <div>
+                <div class="flex items-end justify-between mb-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs sm:text-sm font-black text-white">拉弓荒謬程度：</span>
+                        <span id="absurdity-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-white/15 text-[#E2E8F0] border border-white/25">
+                            準備拉弓...
+                        </span>
+                    </div>
+                    <div class="text-xl sm:text-2xl font-black text-[#FDE047] leading-none">
+                        <span id="absurdity-percent">0</span><span class="text-sm">%</span>
+                    </div>
+                </div>
+
+                <!-- 動態進度條 -->
+                <div class="w-full h-4 bg-[#090D1E] rounded-full border-2 border-white/25 overflow-hidden p-0.5">
+                    <div id="absurdity-bar" class="h-full rounded-full bg-[#34D399] transition-all duration-75" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 互動 Canvas 畫布區 -->
+        <div class="star-card overflow-hidden relative w-full h-[370px] sm:h-[420px]">
+            <canvas id="game-canvas" class="cursor-grab active:cursor-grabbing"></canvas>
+
+            <!-- 操作提示浮動標籤 -->
+            <div id="drag-hint" class="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#1E1B4B]/90 border-2 border-[#FDE047] px-4 py-1.5 rounded-full shadow-lg text-xs sm:text-sm font-black text-[#FEF08A] whitespace-nowrap animate-bounce">
+                👈 按住彈弓上的鴿子往後拉！拉越緊藉口越荒謬！
+            </div>
+
+            <!-- 階段三（飛鴿傳書中）提示標籤 -->
+            <div id="flying-banner" class="hidden pointer-events-none absolute top-4 left-1/2 -translate-x-1/2 bg-[#FEF08A] border-2 border-[#1E1B4B] px-5 py-2 rounded-full shadow-xl text-sm sm:text-base font-black text-[#1E1B4B] whitespace-nowrap">
+                🕊️ 飛鴿傳書中！正穿越星輝夜空丟下字條...
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===================================================================== -->
+    <!-- 第四階段：字條打開（爛藉口結果與一鍵複製、再想一個） -->
+    <!-- ===================================================================== -->
+    <section id="stage-result" class="hidden w-full max-w-xl px-4 my-auto flex-col items-center z-10">
+        <div id="excuse-note-card" class="w-full p-5 sm:p-7 bg-[#FFFDF7] text-[#3E332A] border-[3px] border-[#1E1B4B] shadow-[0_20px_50px_rgba(0,0,0,0.65)] rounded-3xl relative animate-unfold">
+            <!-- 信紙頂部星光和紙膠帶 -->
+            <div class="w-28 h-6 bg-[#A78BFA]/75 border border-[#1E1B4B]/30 absolute -top-3 left-1/2 -translate-x-1/2 -rotate-2 rounded-sm"></div>
+
+            <!-- 頂部標籤與荒謬度印章 -->
+            <div class="flex items-start justify-between gap-2 mb-4 pt-1">
+                <div>
+                    <span class="inline-block bg-[#1E1B4B] text-[#FEF08A] text-xs font-black px-3 py-1 rounded-full mb-1.5">
+                        🕊️ 星夜飛鴿已送達紙條
+                    </span>
+                    <h3 class="text-sm font-bold text-[#6E5D4F]">
+                        放掉「<span id="result-event-name" class="text-[#1E1B4B] font-black">週五晚上聚餐</span>」的專屬藉口：
+                    </h3>
+                </div>
+
+                <!-- 荒謬度印章 -->
+                <div class="stamp-badge px-3 py-1.5 rounded-xl text-center shrink-0 bg-white/90">
+                    <div class="text-[10px] font-black tracking-wider uppercase">荒謬指數</div>
+                    <div class="text-lg sm:text-xl font-black leading-tight"><span id="result-percent">88</span>%</div>
+                    <div id="result-tier-tag" class="text-[10px] font-bold">宇宙級荒謬</div>
+                </div>
+            </div>
+
+            <!-- 藉口文案顯示與可編輯信紙區 -->
+            <div class="letter-paper border-2 border-[#D8CBB8] rounded-2xl p-4 sm:p-5 mb-5 relative">
+                <textarea 
+                    id="excuse-textarea" 
+                    rows="4" 
+                    class="w-full bg-transparent resize-none font-bold text-base sm:text-lg text-[#29211B] focus:outline-none"
+                ></textarea>
+                <div class="text-right text-[11px] font-bold text-[#9C8B7A] mt-1">
+                    💡 可直接點擊上方信紙微調文字細節
+                </div>
+            </div>
+
+            <!-- 主要行動按鈕組：一鍵複製 ＋ 再想一個 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <button id="copy-excuse-btn" class="comic-btn py-3.5 px-4 rounded-2xl bg-[#E76F51] hover:bg-[#D95D3F] text-white font-black text-base sm:text-lg flex items-center justify-center gap-2">
+                    <span id="copy-icon">📋</span>
+                    <span id="copy-text">一鍵複製藉口</span>
+                </button>
+
+                <button id="reroll-excuse-btn" class="comic-btn py-3.5 px-4 rounded-2xl bg-[#FDE047] hover:bg-[#FACC15] text-[#1E1B4B] font-black text-base sm:text-lg flex items-center justify-center gap-2">
+                    <span>🎲</span>
+                    <span>再想一個</span>
+                </button>
+            </div>
+
+            <!-- 次要操作：重新拉弓 / 回到首頁重抓鴿子 -->
+            <div class="flex items-center justify-center gap-4 pt-2 border-t-2 border-dashed border-[#E8DFD1] text-xs sm:text-sm font-bold text-[#6E5D4F]">
+                <button id="reshoot-btn" class="hover:text-[#1E1B4B] flex items-center gap-1 py-1 cursor-pointer">
+                    <span>🏹</span>
+                    <span>重新拉弓調整荒謬度</span>
+                </button>
+                <span>|</span>
+                <button id="reset-all-btn" class="hover:text-[#1E1B4B] flex items-center gap-1 py-1 cursor-pointer">
+                    <span>🕊️</span>
+                    <span>回星空重新抓一隻鴿子</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 頁尾小語（僅在非首頁時顯示，避免遮擋首頁弧形地面） -->
+    <footer id="app-footer" class="hidden w-full max-w-2xl text-center text-xs font-medium text-[#94A3B8] pb-3 z-10">
+        溫馨提醒：放鴿子有風險，使用爛藉口前請評估友誼堅固程度 🕊️✨
+    </footer>
+
+    <!-- 複製成功飛鴿提示 Toast -->
+    <div id="copy-toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-[-20px]">
+        <div class="bg-[#34D399] text-[#064E3B] border-2 border-[#064E3B] shadow-xl px-5 py-2.5 rounded-full font-black text-sm flex items-center gap-2">
+            <span>🕊️ 咕咕！藉口已複製，快貼進聊天室吧！</span>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * 1. 內建通用爛藉口資料庫（27 句不重複創意藉口，免外掛 AI）
+         * ============================================================================
+         */
+        const REASON_META = {
+            sick: { label: '🤒 身體不適', shortTag: '身體不適', bubbleBg: '#FFE4E6', bubbleBorder: '#FB7185', textColor: '#9F1239' },
+            emergency: { label: '⚡ 突發急事', shortTag: '突發急事', bubbleBg: '#E0F2FE', bubbleBorder: '#38BDF8', textColor: '#075985' },
+            lazy: { label: '💤 單純懶／睡過頭', shortTag: '單純懶／睡過頭', bubbleBg: '#FEF9C3', bubbleBorder: '#FACC15', textColor: '#854D0E' }
+        };
+
+        const EXCUSE_DATABASE = {
+            // 理由一：🤒 身體不適
+            sick: {
+                low: [
+                    "不好意思！我從剛剛開始肚子就有點絞痛，現在一直跑廁所，今天的「{event}」我可能沒辦法去了，真的很抱歉！",
+                    "抱歉臨時跟大家說一聲，我今天起床覺得喉嚨超痛又有點微燒，怕傳染給大家，今天的「{event}」我先在家休息一次，下次我請客！",
+                    "真的超不好意思，我中午不知道吃到什麼，現在整個人頭暈想吐，沒辦法去「{event}」了，你們玩得開心一點！"
+                ],
+                mid: [
+                    "救命，我剛剛只是伸個懶腰，結果脖子跟肩膀直接大落枕，現在頭完全轉不動像機器人一樣，今天的「{event}」我真的沒辦法出門了對不起！",
+                    "超崩潰！我剛剛隱形眼鏡突然在眼睛裡破掉一半，現在眼睛紅到像兔子在流淚，沒辦法看路，今天的「{event}」先讓我缺席一次！",
+                    "不好意思跟你們告假，我昨晚吃太辣，今天腸胃大抗議，目前距離馬桶超過三步就會有生命危險，「{event}」我真的無能為力了…"
+                ],
+                high: [
+                    "真的非常抱歉，我剛剛喝水不小心嗆到，結果引發了連續打嗝兩小時的罕見症狀，現在每講一個字就會『嗝』超大一聲，為了不影響「{event}」的氣氛，我決定在家自我隔離。",
+                    "對不起各位，我昨天睡覺夢到自己在跑馬拉松，結果在床上真的狂踢腿，今天起床發現雙腿嚴重鐵腿＋抽筋，現在連下床都要用爬的，「{event}」我真的去不了了！",
+                    "緊急通知！我剛剛不小心咬到舌頭，腫到現在講話完全變成外星語，我怕我去「{event}」大家會以為我在唸咒語，今天先讓我閉關修養！"
+                ]
+            },
+            // 理由二：⚡ 突發急事
+            emergency: {
+                low: [
+                    "不好意思！我家人剛剛臨時打來說家裡有點急事需要我回去處理一下，今天的「{event}」沒辦法跟你們一起了，真的很抱歉！",
+                    "超級抱歉，我這邊臨時被交辦了一個急件要馬上處理，現在完全走不開，「{event}」我今天先缺席，改天一定補請大家！",
+                    "對不起大家，我剛剛出門發現鑰匙被反鎖在房間裡，現在正在等鎖匠來救我，趕不上「{event}」了，你們先開始不用等我！"
+                ],
+                mid: [
+                    "大崩潰！我家樓下的感應門禁系統突然大當機，現在整棟樓的人都被困在大廳出不去，管理員說要等廠商來修，今天的「{event}」我真的逃不出來了！",
+                    "不好意思臨時放鴿子，我剛剛出門到一半，鞋底竟然整個開口笑脫落，現在一腳高一腳低根本沒辦法走路，我只好先一拐一拐回家，「{event}」下次再約！",
+                    "救命！我鄰居家的水管爆掉，水現在正從我家天花板滲進來，我必須留在現場拿水桶接水搶救我的家具，今天的「{event}」真的沒辦法去了！"
+                ],
+                high: [
+                    "真的不是故意要放「{event}」的鴿子，但我家的貓剛剛自己打開了陽台門跟一隻野鳥對峙，我現在必須當牠們的談判專家防止大戰爆發，完全無法離開現場！",
+                    "緊急狀況！我剛剛出門遇到一隻超黏人的浪浪一直跟著我走，牠看起來好像迷路了，我現在正在陪牠在派出所等掃晶片，今天的「{event}」只能先含淚缺席了！",
+                    "超荒謬但這是真的：我剛剛在樓下買飲料，結果店員找錯錢多找我五百塊，我良心不安回去還他，結果他感動到非要拉著我聊他的人生故事，現在脫身不了，趕不上「{event}」了！"
+                ]
+            },
+            // 理由三：💤 單純懶／睡過頭
+            lazy: {
+                low: [
+                    "超級對不起！！我剛剛看行事曆才發現我把「{event}」的時間記錯了，我現在人在超遠的地方趕不過去，真的非常抱歉！",
+                    "抱歉抱歉，我昨天太累設錯鬧鐘（設成 PM 了），剛剛才驚醒，現在趕去「{event}」已經快結束了，今天先對不起大家一次！",
+                    "不好意思，我手機剛剛不知道為什麼自動關機，充電開機後才看到時間已經過了，今天的「{event}」我真的大遲到趕不上了，下次我請喝飲料賠罪！"
+                ],
+                mid: [
+                    "對不起各位，我剛剛洗完頭準備要出門赴約「{event}」，結果吹風機突然燒壞冒煙，現在頂著一頭滴水的長髮吹冷風，出門一定會感冒，今天先讓我缺席吧！",
+                    "超愧疚…我原本已經穿好衣服準備出門去「{event}」了，結果一坐下來穿襪子不小心靠在床邊睡著，醒來天都黑了，我對不起大家！",
+                    "不好意思臨時告假，我今天出門前在衣櫃前陷入嚴重的選擇障礙，試穿了十幾套衣服都覺得不對勁，結果時間就這樣過去了，「{event}」我下次一定提早準備！"
+                ],
+                high: [
+                    "誠實面對大家：我今天起床後發現地球的重力好像突然變成了平常的三倍，我用盡全身力氣還是無法把身體從床上拔起來，今天的「{event}」就讓我的靈魂精神參與吧！",
+                    "非常抱歉，我剛剛在鏡子前發現我今天的瀏海分線呈現一個極度不吉利的角度，根據我的第六感，今天出門參加「{event}」一定會發生大事，為了保護大家我決定待在家裡。",
+                    "對不起，我的社交能量電池在剛剛正式降到 0% 並進入強制休眠模式，目前連講話都需要耗費大量 CPU，今天的「{event}」我先關機充電，改天滿血復活再約！"
+                ]
+            }
+        };
+
+        /**
+         * ============================================================================
+         * 2. Web Audio API 合成音效模組
+         * ============================================================================
+         */
+        class SoundEffects {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            // 抓住／點擊鴿子的可愛「咕咕！」聲
+            playCoo(pitchMultiplier = 1) {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [0, 0.13].forEach((offset, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    const base = (idx === 0 ? 460 : 540) * pitchMultiplier;
+                    osc.frequency.setValueAtTime(base, now + offset);
+                    osc.frequency.linearRampToValueAtTime(base * 1.16, now + offset + 0.05);
+                    osc.frequency.linearRampToValueAtTime(base * 0.88, now + offset + 0.11);
+                    gain.gain.setValueAtTime(0.13, now + offset);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.12);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + offset);
+                    osc.stop(now + offset + 0.12);
+                });
+            }
+
+            // 拉弓緊繃音效
+            playStretch(powerRatio) {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150 + powerRatio * 280, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+
+            // 彈射起飛音效
+            playLaunch() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(240, now);
+                osc.frequency.exponentialRampToValueAtTime(820, now + 0.26);
+                gain.gain.setValueAtTime(0.16, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.28);
+                this.playCoo(1.12);
+            }
+
+            // 字條展開清脆音
+            playUnfold() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(360, now);
+                osc.frequency.exponentialRampToValueAtTime(720, now + 0.15);
+                gain.gain.setValueAtTime(0.14, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.16);
+            }
+
+            // 複製成功叮咚三音階
+            playSuccess() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99].forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.07);
+                    gain.gain.setValueAtTime(0.12, now + i * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.07);
+                    osc.stop(now + i * 0.07 + 0.2);
+                });
+            }
+        }
+
+        const sfx = new SoundEffects();
+
+        /**
+         * ============================================================================
+         * 3. 全域狀態與畫面切換管理
+         * ============================================================================
+         */
+        const state = {
+            stage: 'home', // 'home' | 'slingshot' | 'flying' | 'result'
+            eventName: '週五晚上聚餐',
+            pigeonType: 'sick', // 'sick' | 'emergency' | 'lazy'
+            absurdityPercent: 0,
+            currentExcuseIndex: -1
+        };
+
+        const stageHome = document.getElementById('stage-home');
+        const stageCanvas = document.getElementById('stage-canvas');
+        const stageResult = document.getElementById('stage-result');
+        const appFooter = document.getElementById('app-footer');
+
+        const eventInput = document.getElementById('event-input');
+        const floatingBox = document.getElementById('floating-box');
+        const displayTargetEvent = document.getElementById('display-target-event');
+        const displaySelectedReason = document.getElementById('display-selected-reason');
+
+        const absurdityPercentEl = document.getElementById('absurdity-percent');
+        const absurdityBadgeEl = document.getElementById('absurdity-badge');
+        const absurdityBarEl = document.getElementById('absurdity-bar');
+        const dragHintEl = document.getElementById('drag-hint');
+        const flyingBannerEl = document.getElementById('flying-banner');
+
+        function switchStage(newStage) {
+            state.stage = newStage;
+            stageHome.classList.add('hidden');
+            stageCanvas.classList.add('hidden');
+            stageResult.classList.add('hidden');
+            appFooter.classList.add('hidden');
+
+            if (newStage === 'home') {
+                stageHome.classList.remove('hidden');
+                resizeHomeCanvas();
+                initRunningPigeons();
+            } else if (newStage === 'slingshot' || newStage === 'flying') {
+                stageCanvas.classList.remove('hidden');
+                stageCanvas.classList.add('flex');
+                appFooter.classList.remove('hidden');
+                resizeGameCanvas();
+                if (newStage === 'slingshot') {
+                    resetSlingshotState();
+                }
+            } else if (newStage === 'result') {
+                stageResult.classList.remove('hidden');
+                stageResult.classList.add('flex');
+                appFooter.classList.remove('hidden');
+                renderExcuseResult();
+            }
+        }
+
+        // 音效開關
+        document.getElementById('sound-toggle-btn').addEventListener('click', () => {
+            sfx.enabled = !sfx.enabled;
+            document.getElementById('sound-icon').textContent = sfx.enabled ? '🔊' : '🔇';
+            document.getElementById('sound-text').textContent = sfx.enabled ? '星夜音效' : '已靜音';
+            if (sfx.enabled) sfx.playUnfold();
+        });
+
+        // 首頁懶人快選標籤
+        document.querySelectorAll('.quick-event-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                eventInput.value = chip.textContent.trim();
+                sfx.playUnfold();
+            });
+        });
+
+        document.getElementById('back-to-home-btn').addEventListener('click', () => {
+            sfx.playUnfold();
+            switchStage('home');
+        });
+
+        /**
+         * ============================================================================
+         * 4. 全螢幕背景星空畫布（閃爍星辰與流星）
+         * ============================================================================
+         */
+        const starCanvas = document.getElementById('bg-starfield');
+        const starCtx = starCanvas.getContext('2d');
+        let stars = [];
+        let shootingStars = [];
+
+        function initStarfield() {
+            const dpr = window.devicePixelRatio || 1;
+            starCanvas.width = window.innerWidth * dpr;
+            starCanvas.height = window.innerHeight * dpr;
+            starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            stars = [];
+            const starCount = Math.floor((window.innerWidth * window.innerHeight) / 8500);
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    r: 0.7 + Math.random() * 1.8,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 0.02 + Math.random() * 0.04,
+                    isGold: Math.random() > 0.65
+                });
+            }
+        }
+
+        function drawStarfield() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            starCtx.clearRect(0, 0, w, h);
+
+            // 閃爍星辰
+            stars.forEach(s => {
+                s.phase += s.speed;
+                const alpha = 0.25 + (Math.sin(s.phase) + 1) * 0.37;
+                starCtx.fillStyle = s.isGold ? `rgba(254, 240, 138, ${alpha})` : `rgba(226, 232, 240, ${alpha})`;
+                starCtx.beginPath();
+                starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                starCtx.fill();
+            });
+
+            // 偶爾劃過流星
+            if (Math.random() < 0.008 && shootingStars.length < 2) {
+                shootingStars.push({
+                    x: Math.random() * w * 0.8 + w * 0.1,
+                    y: Math.random() * h * 0.3,
+                    vx: -7 - Math.random() * 4,
+                    vy: 3.5 + Math.random() * 2,
+                    life: 1.0
+                });
+            }
+
+            shootingStars.forEach((ss, idx) => {
+                ss.x += ss.vx;
+                ss.y += ss.vy;
+                ss.life -= 0.025;
+                if (ss.life <= 0) {
+                    shootingStars.splice(idx, 1);
+                    return;
+                }
+                const grad = starCtx.createLinearGradient(ss.x, ss.y, ss.x - ss.vx * 8, ss.y - ss.vy * 8);
+                grad.addColorStop(0, `rgba(254, 240, 138, ${ss.life})`);
+                grad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+                starCtx.strokeStyle = grad;
+                starCtx.lineWidth = 2;
+                starCtx.beginPath();
+                starCtx.moveTo(ss.x, ss.y);
+                starCtx.lineTo(ss.x - ss.vx * 8, ss.y - ss.vy * 8);
+                starCtx.stroke();
+            });
+        }
+
+        /**
+         * ============================================================================
+         * 5. 第一階段互動 Canvas：圓弧地面 ＋ 很多鴿子在地上跑 ＋ 隨機頭頂 3 種理由氣泡
+         * ============================================================================
+         */
+        const homeCanvas = document.getElementById('home-pigeons-canvas');
+        const homeCtx = homeCanvas.getContext('2d');
+        let homeWidth = 800;
+        let homeHeight = 290;
+        let runningPigeons = [];
+
+        function resizeHomeCanvas() {
+            const rect = homeCanvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            homeWidth = rect.width;
+            homeHeight = rect.height;
+            homeCanvas.width = homeWidth * dpr;
+            homeCanvas.height = homeHeight * dpr;
+            homeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        // 計算圓弧星球地面的 Y 座標與切線斜率角度（完美還原手繪草圖中的弧線！）
+        function getArcGround(x) {
+            const centerX = homeWidth * 0.5;
+            // 弧線頂點位於畫布高度約 52% 處，兩側微微向下彎曲
+            const peakY = homeHeight * 0.54;
+            const curveFactor = 0.00028 * (800 / Math.max(homeWidth, 380));
+            const dx = x - centerX;
+            const y = peakY + curveFactor * dx * dx;
+            const slope = 2 * curveFactor * dx;
+            const angle = Math.atan(slope);
+            return { y, angle };
+        }
+
+        // 初始化地上奔跑的鴿子群（含 3 種理由標籤隨機分配在鴿子頭上）
+        function initRunningPigeons() {
+            runningPigeons = [];
+            const totalPigeons = homeWidth < 520 ? 6 : 8;
+            // 確保 3 種理由都一定會隨機出現在鴿子頭上
+            const reasonPool = ['sick', 'emergency', 'lazy', 'sick', 'emergency', 'lazy'];
+            // 洗牌理由陣列
+            for (let i = reasonPool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [reasonPool[i], reasonPool[j]] = [reasonPool[j], reasonPool[i]];
+            }
+
+            for (let i = 0; i < totalPigeons; i++) {
+                // 前 4~5 隻帶有理由標籤，其餘為純陪跑的路人鴿子
+                const hasReason = i < (homeWidth < 520 ? 4 : 5);
+                const reasonType = hasReason ? reasonPool[i % reasonPool.length] : null;
+                const dir = Math.random() > 0.5 ? 1 : -1;
+
+                runningPigeons.push({
+                    x: (homeWidth * 0.12) + (i / totalPigeons) * (homeWidth * 0.76),
+                    vx: dir * (0.85 + Math.random() * 0.95),
+                    dir: dir,
+                    reasonType: reasonType,
+                    stepPhase: Math.random() * Math.PI * 2,
+                    jumpY: 0,
+                    jumpVy: 0,
+                    scale: 0.85 + Math.random() * 0.18,
+                    depthOffset: (i % 2 === 0 ? -4 : 16) // 製造前後排層次感，呼應草圖錯落圈圈
+                });
+            }
+        }
+
+        // 繪製通用可愛鴿子角色（可共用在首頁奔跑、彈弓、飛鴿傳書）
+        function drawPigeonCharacter(targetCtx, x, y, options = {}) {
+            const {
+                type = null, // 'sick' | 'emergency' | 'lazy' | null
+                absurdity = 0,
+                wingFlap = 0,
+                legPhase = 0,
+                scale = 1,
+                facing = 1, // 1 朝右, -1 朝左
+                carryNote = false
+            } = options;
+
+            targetCtx.save();
+            targetCtx.translate(x, y);
+            targetCtx.scale(scale * facing, scale);
+
+            // 高荒謬緊張震動
+            if (absurdity > 75 && slingshot.isDragging) {
+                targetCtx.translate((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4);
+            }
+
+            // 1. 奔跑小短腿（依 legPhase 交替前後擺動）
+            const legSwing = Math.sin(legPhase) * 6;
+            targetCtx.strokeStyle = '#FB923C';
+            targetCtx.lineWidth = 3;
+            targetCtx.lineCap = 'round';
+            // 後腳
+            targetCtx.beginPath();
+            targetCtx.moveTo(-3, 16);
+            targetCtx.lineTo(-5 - legSwing, 26);
+            targetCtx.stroke();
+            // 前腳
+            targetCtx.beginPath();
+            targetCtx.moveTo(5, 16);
+            targetCtx.lineTo(5 + legSwing, 26);
+            targetCtx.stroke();
+
+            // 飛鴿傳書捲軸
+            if (carryNote) {
+                targetCtx.save();
+                targetCtx.translate(0, 29);
+                targetCtx.rotate(-0.15);
+                targetCtx.fillStyle = '#FFFDF7';
+                targetCtx.strokeStyle = '#1E1B4B';
+                targetCtx.lineWidth = 2.5;
+                targetCtx.beginPath();
+                targetCtx.roundRect(-14, -6, 28, 12, 4);
+                targetCtx.fill();
+                targetCtx.stroke();
+                targetCtx.fillStyle = '#E76F51';
+                targetCtx.fillRect(-3, -6, 6, 12);
+                targetCtx.restore();
+            }
+
+            // 2. 尾羽
+            targetCtx.fillStyle = '#94A3B8';
+            targetCtx.strokeStyle = '#1E1B4B';
+            targetCtx.lineWidth = 2.8;
+            targetCtx.beginPath();
+            targetCtx.moveTo(-18, 4);
+            targetCtx.lineTo(-34, -5);
+            targetCtx.lineTo(-30, 12);
+            targetCtx.closePath();
+            targetCtx.fill();
+            targetCtx.stroke();
+
+            // 3. 圓滾滾身體
+            targetCtx.fillStyle = type === 'sick' ? '#E2E8F0' : '#F8FAFC';
+            targetCtx.beginPath();
+            targetCtx.ellipse(0, 4, 22, 18, -0.08, 0, Math.PI * 2);
+            targetCtx.fill();
+            targetCtx.stroke();
+
+            // 脖子星光藍綠環
+            targetCtx.fillStyle = '#34D399';
+            targetCtx.beginPath();
+            targetCtx.ellipse(10, -6, 10, 5.5, 0.2, 0, Math.PI * 2);
+            targetCtx.fill();
+
+            // 4. 頭部
+            targetCtx.fillStyle = type === 'sick' ? '#E2E8F0' : '#FFFFFF';
+            targetCtx.beginPath();
+            targetCtx.arc(12, -14, 13, 0, Math.PI * 2);
+            targetCtx.fill();
+            targetCtx.stroke();
+
+            // 5. 翅膀
+            targetCtx.save();
+            targetCtx.translate(-2, 1);
+            targetCtx.rotate(wingFlap);
+            targetCtx.fillStyle = '#CBD5E1';
+            targetCtx.beginPath();
+            targetCtx.ellipse(-3, 3, 14, 8.5, -0.25, 0, Math.PI * 2);
+            targetCtx.fill();
+            targetCtx.stroke();
+            targetCtx.restore();
+
+            // 6. 嘴巴
+            targetCtx.fillStyle = '#FBBF24';
+            targetCtx.beginPath();
+            if (absurdity > 45) {
+                targetCtx.moveTo(23, -16);
+                targetCtx.lineTo(35, -18);
+                targetCtx.lineTo(24, -12);
+                targetCtx.moveTo(24, -12);
+                targetCtx.lineTo(33, -8);
+                targetCtx.lineTo(23, -9);
+            } else {
+                targetCtx.moveTo(23, -15);
+                targetCtx.lineTo(34, -12);
+                targetCtx.lineTo(23, -9);
+            }
+            targetCtx.closePath();
+            targetCtx.fill();
+            targetCtx.stroke();
+
+            // 7. 眼睛與理由專屬造型
+            if (type === 'emergency' && absurdity <= 75) {
+                // 突發急事：黑墨鏡
+                targetCtx.fillStyle = '#0F172A';
+                targetCtx.beginPath();
+                targetCtx.roundRect(7, -21, 15, 8.5, 3);
+                targetCtx.fill();
+                targetCtx.strokeStyle = '#38BDF8';
+                targetCtx.lineWidth = 1.5;
+                targetCtx.beginPath();
+                targetCtx.moveTo(10, -19);
+                targetCtx.lineTo(13, -15);
+                targetCtx.stroke();
+            } else {
+                const eyeR = absurdity > 35 ? 6 : 4.6;
+                targetCtx.fillStyle = '#FFFFFF';
+                targetCtx.strokeStyle = '#1E1B4B';
+                targetCtx.lineWidth = 2.2;
+                targetCtx.beginPath();
+                targetCtx.arc(15, -15, eyeR, 0, Math.PI * 2);
+                targetCtx.fill();
+                targetCtx.stroke();
+
+                if (absurdity > 75) {
+                    targetCtx.strokeStyle = '#FB7185';
+                    targetCtx.lineWidth = 2;
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(12, -18);
+                    targetCtx.lineTo(18, -12);
+                    targetCtx.moveTo(18, -18);
+                    targetCtx.lineTo(12, -12);
+                    targetCtx.stroke();
+                } else {
+                    targetCtx.fillStyle = '#1E1B4B';
+                    targetCtx.beginPath();
+                    targetCtx.arc(16 + (absurdity > 35 ? 1.5 : 0), -15, 2.3, 0, Math.PI * 2);
+                    targetCtx.fill();
+                }
+            }
+
+            // 身體不適：頭頂退熱貼
+            if (type === 'sick') {
+                targetCtx.fillStyle = '#7DD3FC';
+                targetCtx.strokeStyle = '#1E1B4B';
+                targetCtx.lineWidth = 1.8;
+                targetCtx.beginPath();
+                targetCtx.roundRect(4, -26, 12, 5.5, 2);
+                targetCtx.fill();
+                targetCtx.stroke();
+            }
+
+            // 單純懶／睡過頭：頭頂呆毛
+            if (type === 'lazy') {
+                targetCtx.strokeStyle = '#FDE047';
+                targetCtx.lineWidth = 2.5;
+                targetCtx.beginPath();
+                targetCtx.moveTo(9, -27);
+                targetCtx.quadraticCurveTo(5, -35, 12, -34);
+                targetCtx.stroke();
+            }
+
+            // 緊張冷汗滴
+            if (absurdity > 40) {
+                targetCtx.fillStyle = '#38BDF8';
+                targetCtx.beginPath();
+                targetCtx.arc(-2, -21, 3.2, 0, Math.PI * 2);
+                targetCtx.fill();
+            }
+
+            targetCtx.restore();
+        }
+
+        // 繪製鴿子頭頂懸浮的理由對話氣泡標籤（草圖右下角標註重點！）
+        function drawReasonBubble(targetCtx, x, y, reasonType, bobOffset) {
+            const meta = REASON_META[reasonType];
+            if (!meta) return;
+
+            const text = meta.label;
+            targetCtx.save();
+            targetCtx.translate(x, y + bobOffset);
+
+            targetCtx.font = '900 13px "Noto Sans TC", sans-serif';
+            const textMetrics = targetCtx.measureText(text);
+            const padX = 12;
+            const boxW = textMetrics.width + padX * 2;
+            const boxH = 30;
+
+            // 氣泡外框發光陰影
+            targetCtx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+            targetCtx.shadowBlur = 8;
+            targetCtx.shadowOffsetY = 4;
+
+            // 氣泡主體
+            targetCtx.fillStyle = meta.bubbleBg;
+            targetCtx.strokeStyle = meta.bubbleBorder;
+            targetCtx.lineWidth = 2.5;
+            targetCtx.beginPath();
+            targetCtx.roundRect(-boxW / 2, -boxH, boxW, boxH, 15);
+            targetCtx.fill();
+            targetCtx.stroke();
+
+            // 氣泡下方小尖角
+            targetCtx.shadowColor = 'transparent';
+            targetCtx.fillStyle = meta.bubbleBg;
+            targetCtx.beginPath();
+            targetCtx.moveTo(-5, 0);
+            targetCtx.lineTo(5, 0);
+            targetCtx.lineTo(0, 6);
+            targetCtx.closePath();
+            targetCtx.fill();
+
+            // 氣泡文字
+            targetCtx.fillStyle = meta.textColor;
+            targetCtx.textAlign = 'center';
+            targetCtx.textBaseline = 'middle';
+            targetCtx.fillText(text, 0, -boxH / 2 + 1);
+
+            targetCtx.restore();
+        }
+
+        // 渲染第一階段首頁的圓弧地面與奔跑鴿子群
+        function drawHomePigeonsScene() {
+            homeCtx.clearRect(0, 0, homeWidth, homeHeight);
+
+            // 1. 繪製草圖中的圓弧星球地平線（帶星輝微光邊緣）
+            homeCtx.save();
+            homeCtx.beginPath();
+            homeCtx.moveTo(0, homeHeight);
+            for (let x = 0; x <= homeWidth; x += 12) {
+                const { y } = getArcGround(x);
+                homeCtx.lineTo(x, y);
+            }
+            homeCtx.lineTo(homeWidth, homeHeight);
+            homeCtx.closePath();
+
+            const groundGrad = homeCtx.createLinearGradient(0, homeHeight * 0.45, 0, homeHeight);
+            groundGrad.addColorStop(0, '#1E293B');
+            groundGrad.addColorStop(0.4, '#0F172A');
+            groundGrad.addColorStop(1, '#050814');
+            homeCtx.fillStyle = groundGrad;
+            homeCtx.fill();
+
+            // 圓弧發光邊界線
+            homeCtx.beginPath();
+            for (let x = 0; x <= homeWidth; x += 12) {
+                const { y } = getArcGround(x);
+                if (x === 0) homeCtx.moveTo(x, y);
+                else homeCtx.lineTo(x, y);
+            }
+            homeCtx.strokeStyle = 'rgba(253, 224, 71, 0.55)';
+            homeCtx.lineWidth = 3;
+            homeCtx.stroke();
+            homeCtx.restore();
+
+            // 2. 更新並繪製所有在地上跑的鴿子（依 Y 座標排序製造前後遮擋自然感）
+            runningPigeons.sort((a, b) => a.depthOffset - b.depthOffset);
+
+            runningPigeons.forEach(p => {
+                p.x += p.vx;
+                p.stepPhase += 0.24;
+
+                // 跑到左右邊界時掉頭
+                if (p.x < 45) {
+                    p.x = 45;
+                    p.vx = Math.abs(p.vx);
+                    p.dir = 1;
+                } else if (p.x > homeWidth - 45) {
+                    p.x = homeWidth - 45;
+                    p.vx = -Math.abs(p.vx);
+                    p.dir = -1;
+                }
+
+                // 偶爾隨機小跳躍或轉向
+                if (Math.random() < 0.006 && p.jumpY === 0) {
+                    p.jumpVy = -4.5;
+                }
+                if (p.jumpY < 0 || p.jumpVy !== 0) {
+                    p.jumpY += p.jumpVy;
+                    p.jumpVy += 0.35;
+                    if (p.jumpY >= 0) {
+                        p.jumpY = 0;
+                        p.jumpVy = 0;
+                    }
+                }
+
+                const { y: groundY, angle } = getArcGround(p.x);
+                const bounce = Math.abs(Math.sin(p.stepPhase)) * 3.5;
+                const finalY = groundY + p.depthOffset - 22 * p.scale - bounce + p.jumpY;
+
+                // 地面小陰影
+                homeCtx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+                homeCtx.beginPath();
+                homeCtx.ellipse(p.x, groundY + p.depthOffset + 2, 18 * p.scale, 5 * p.scale, angle, 0, Math.PI * 2);
+                homeCtx.fill();
+
+                // 繪製奔跑中的鴿子（順著圓弧地面傾斜角度）
+                homeCtx.save();
+                homeCtx.translate(p.x, finalY);
+                homeCtx.rotate(angle);
+                drawPigeonCharacter(homeCtx, 0, 0, {
+                    type: p.reasonType,
+                    legPhase: p.stepPhase,
+                    wingFlap: Math.sin(p.stepPhase * 0.5) * 0.18,
+                    scale: p.scale,
+                    facing: p.dir
+                });
+                homeCtx.restore();
+
+                // 若該鴿子頭頂有理由氣泡，繪製在鴿子正上方！
+                if (p.reasonType) {
+                    const bob = Math.sin(p.stepPhase * 0.4) * 3;
+                    drawReasonBubble(homeCtx, p.x, finalY - 34 * p.scale, p.reasonType, bob);
+                }
+            });
+        }
+
+        // 點擊首頁地面鴿子（可點鴿子本體或頭頂理由氣泡）
+        function handleHomeCanvasClick(e) {
+            if (state.stage !== 'home') return;
+            const rect = homeCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const clickX = clientX - rect.left;
+            const clickY = clientY - rect.top;
+
+            // 從最前排鴿子開始檢測點擊
+            for (let i = runningPigeons.length - 1; i >= 0; i--) {
+                const p = runningPigeons[i];
+                const { y: groundY } = getArcGround(p.x);
+                const pigeonCenterY = groundY + p.depthOffset - 22 * p.scale;
+
+                // 檢測是否點中鴿子本體或頭頂氣泡範圍
+                const hitBody = Math.hypot(clickX - p.x, clickY - pigeonCenterY) < 42;
+                const hitBubble = p.reasonType && Math.abs(clickX - p.x) < 68 && Math.abs(clickY - (pigeonCenterY - 48)) < 26;
+
+                if (hitBody || hitBubble) {
+                    if (p.reasonType) {
+                        // 抓到有理由的鴿子！進入第二階段彈弓！
+                        const rawVal = eventInput.value.trim();
+                        if (!rawVal) {
+                            // 若還沒輸入事件，自動填入預設事件並給輸入框一個溫柔提醒動畫
+                            state.eventName = '週五晚上聚餐';
+                            eventInput.value = state.eventName;
+                            floatingBox.classList.remove('animate-shake-warn');
+                            void floatingBox.offsetWidth;
+                            floatingBox.classList.add('animate-shake-warn');
+                        } else {
+                            state.eventName = rawVal;
+                        }
+
+                        state.pigeonType = p.reasonType;
+                        displayTargetEvent.textContent = state.eventName;
+                        displaySelectedReason.textContent = REASON_META[p.reasonType].label;
+
+                        sfx.playCoo(1.15);
+                        switchStage('slingshot');
+                    } else {
+                        // 點到純路過的陪跑鴿子：咕咕叫並跳起來！
+                        p.jumpVy = -7.5;
+                        p.dir *= -1;
+                        p.vx = p.dir * 1.6;
+                        sfx.playCoo(0.95);
+                    }
+                    break;
+                }
+            }
+        }
+
+        homeCanvas.addEventListener('mousedown', handleHomeCanvasClick);
+        homeCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleHomeCanvasClick(e);
+        }, { passive: false });
+
+        /**
+         * ============================================================================
+         * 6. 第二階段 & 第三階段：彈弓拉弓發射 ＋ 飛鴿傳書過場動畫
+         * ============================================================================
+         */
+        const gameCanvas = document.getElementById('game-canvas');
+        const ctx = gameCanvas.getContext('2d');
+        let width = 600;
+        let height = 400;
+
+        const slingshot = {
+            anchorX: 150,
+            anchorY: 220,
+            maxPull: 115,
+            isDragging: false,
+            pigeonX: 150,
+            pigeonY: 220,
+            vx: 0,
+            vy: 0,
+            launched: false,
+            lastStretchTick: 0
+        };
+
+        const carrierScene = {
+            timer: 0,
+            duration: 155,
+            pigeonX: 120,
+            pigeonY: 160,
+            noteDropped: false,
+            noteX: 0,
+            noteY: 0,
+            noteVy: 0,
+            noteRot: 0,
+            clouds: [],
+            buildings: []
+        };
+
+        let bgClouds = [];
+        let feathers = [];
+
+        function resizeGameCanvas() {
+            const rect = gameCanvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            width = rect.width;
+            height = rect.height;
+            gameCanvas.width = width * dpr;
+            gameCanvas.height = height * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            slingshot.anchorX = Math.min(155, width * 0.28);
+            slingshot.anchorY = height * 0.56;
+            slingshot.maxPull = Math.min(115, width * 0.22);
+
+            if (!slingshot.isDragging && !slingshot.launched) {
+                slingshot.pigeonX = slingshot.anchorX;
+                slingshot.pigeonY = slingshot.anchorY;
+            }
+        }
+
+        function initGameEnvironment() {
+            bgClouds = [
+                { x: 100, y: 65, scale: 0.9, speed: 0.25 },
+                { x: 340, y: 45, scale: 1.1, speed: 0.18 },
+                { x: 540, y: 85, scale: 0.75, speed: 0.3 }
+            ];
+            carrierScene.buildings = [];
+            let bx = 0;
+            while (bx < 1200) {
+                const bw = 45 + Math.random() * 55;
+                const bh = 45 + Math.random() * 75;
+                carrierScene.buildings.push({ x: bx, w: bw, h: bh });
+                bx += bw + 8;
+            }
+        }
+
+        function resetSlingshotState() {
+            slingshot.isDragging = false;
+            slingshot.launched = false;
+            slingshot.pigeonX = slingshot.anchorX;
+            slingshot.pigeonY = slingshot.anchorY;
+            slingshot.vx = 0;
+            slingshot.vy = 0;
+            feathers = [];
+
+            dragHintEl.classList.remove('hidden');
+            flyingBannerEl.classList.add('hidden');
+            updateAbsurdityUI(0);
+        }
+
+        function updateAbsurdityUI(percent) {
+            state.absurdityPercent = Math.round(percent);
+            absurdityPercentEl.textContent = state.absurdityPercent;
+            absurdityBarEl.style.width = `${state.absurdityPercent}%`;
+
+            if (state.absurdityPercent === 0) {
+                absurdityBadgeEl.textContent = '準備拉弓...';
+                absurdityBadgeEl.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-white/15 text-[#E2E8F0] border border-white/25';
+                absurdityBarEl.className = 'h-full rounded-full bg-[#34D399] transition-all duration-75';
+            } else if (state.absurdityPercent <= 35) {
+                absurdityBadgeEl.textContent = '微心虛・合理藉口';
+                absurdityBadgeEl.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-[#064E3B] text-[#6EE7B7] border border-[#34D399]';
+                absurdityBarEl.className = 'h-full rounded-full bg-[#34D399] transition-all duration-75';
+            } else if (state.absurdityPercent <= 75) {
+                absurdityBadgeEl.textContent = '半真半假・開始扯淡';
+                absurdityBadgeEl.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-[#78350F] text-[#FDE047] border border-[#FACC15]';
+                absurdityBarEl.className = 'h-full rounded-full bg-[#FBBF24] transition-all duration-75';
+            } else {
+                absurdityBadgeEl.textContent = '徹底放飛・宇宙級荒謬';
+                absurdityBadgeEl.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-[#881337] text-[#FDA4AF] border border-[#FB7185]';
+                absurdityBarEl.className = 'h-full rounded-full bg-[#FB7185] transition-all duration-75';
+            }
+        }
+
+        function getGamePointerPos(e) {
+            const rect = gameCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function handleGamePointerDown(e) {
+            if (state.stage !== 'slingshot' || slingshot.launched) return;
+            const pos = getGamePointerPos(e);
+            const dist = Math.hypot(pos.x - slingshot.pigeonX, pos.y - slingshot.pigeonY);
+            if (dist < 70) {
+                slingshot.isDragging = true;
+                dragHintEl.classList.add('hidden');
+                sfx.init();
+            }
+        }
+
+        function handleGamePointerMove(e) {
+            if (!slingshot.isDragging || state.stage !== 'slingshot') return;
+            e.preventDefault();
+            const pos = getGamePointerPos(e);
+
+            let dx = pos.x - slingshot.anchorX;
+            let dy = pos.y - slingshot.anchorY;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > slingshot.maxPull) {
+                const angle = Math.atan2(dy, dx);
+                dx = Math.cos(angle) * slingshot.maxPull;
+                dy = Math.sin(angle) * slingshot.maxPull;
+            }
+
+            slingshot.pigeonX = slingshot.anchorX + dx;
+            slingshot.pigeonY = slingshot.anchorY + dy;
+
+            const effectiveDist = Math.max(0, Math.min(dist, slingshot.maxPull));
+            const percent = (effectiveDist / slingshot.maxPull) * 100;
+            updateAbsurdityUI(percent);
+
+            if (Math.abs(percent - slingshot.lastStretchTick) >= 12) {
+                sfx.playStretch(percent / 100);
+                slingshot.lastStretchTick = percent;
+            }
+        }
+
+        function handleGamePointerUp() {
+            if (!slingshot.isDragging || state.stage !== 'slingshot') return;
+            slingshot.isDragging = false;
+
+            const dx = slingshot.anchorX - slingshot.pigeonX;
+            const dy = slingshot.anchorY - slingshot.pigeonY;
+            const pullDist = Math.hypot(dx, dy);
+
+            if (pullDist < 15) {
+                slingshot.pigeonX = slingshot.anchorX;
+                slingshot.pigeonY = slingshot.anchorY;
+                updateAbsurdityUI(0);
+                dragHintEl.classList.remove('hidden');
+                return;
+            }
+
+            slingshot.launched = true;
+            const launchDx = dx > 10 ? dx : Math.abs(dx) + 25;
+            slingshot.vx = launchDx * 0.24;
+            slingshot.vy = dy * 0.24 - 2.5;
+
+            sfx.playLaunch();
+            spawnFeathers(slingshot.pigeonX, slingshot.pigeonY, 16);
+        }
+
+        gameCanvas.addEventListener('mousedown', handleGamePointerDown);
+        window.addEventListener('mousemove', handleGamePointerMove);
+        window.addEventListener('mouseup', handleGamePointerUp);
+
+        gameCanvas.addEventListener('touchstart', handleGamePointerDown, { passive: false });
+        window.addEventListener('touchmove', handleGamePointerMove, { passive: false });
+        window.addEventListener('touchend', handleGamePointerUp);
+
+        function spawnFeathers(x, y, count) {
+            for (let i = 0; i < count; i++) {
+                feathers.push({
+                    x,
+                    y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.8) * 7,
+                    rot: Math.random() * Math.PI * 2,
+                    vRot: (Math.random() - 0.5) * 0.2,
+                    life: 1.0
+                });
+            }
+        }
+
+        function startCarrierPigeonTransition() {
+            state.stage = 'flying';
+            flyingBannerEl.classList.remove('hidden');
+            carrierScene.timer = 0;
+            carrierScene.pigeonX = width * 0.22;
+            carrierScene.pigeonY = height * 0.42;
+            carrierScene.noteDropped = false;
+            carrierScene.noteX = 0;
+            carrierScene.noteY = 0;
+            carrierScene.noteVy = 0;
+        }
+
+        function drawNightCloud(x, y, scale) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
+            ctx.beginPath();
+            ctx.arc(0, 0, 22, 0, Math.PI * 2);
+            ctx.arc(20, -6, 26, 0, Math.PI * 2);
+            ctx.arc(44, 0, 20, 0, Math.PI * 2);
+            ctx.arc(22, 10, 22, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // 繪製第二階段：星夜彈弓場景
+        function drawSlingshotScene() {
+            // 星夜漸層背景（高荒謬度帶紫紅星雲張力）
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+            if (state.absurdityPercent > 75 && slingshot.isDragging) {
+                bgGrad.addColorStop(0, '#3B1D5E');
+                bgGrad.addColorStop(1, '#1E1B4B');
+            } else {
+                bgGrad.addColorStop(0, '#141B3A');
+                bgGrad.addColorStop(1, '#0B1024');
+            }
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, width, height);
+
+            // 夜空微光雲朵
+            bgClouds.forEach(c => {
+                c.x -= c.speed;
+                if (c.x < -80) c.x = width + 80;
+                drawNightCloud(c.x, c.y, c.scale);
+            });
+
+            // 底部星夜山丘地面
+            const groundY = height - 45;
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(0, groundY, width, 45);
+            ctx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(0, groundY);
+            ctx.lineTo(width, groundY);
+            ctx.stroke();
+
+            // 高荒謬度金色閃電特效
+            if (state.absurdityPercent > 75 && slingshot.isDragging) {
+                ctx.strokeStyle = '#FDE047';
+                ctx.lineWidth = 3.5;
+                ctx.beginPath();
+                ctx.moveTo(width - 90, 25);
+                ctx.lineTo(width - 115, 75);
+                ctx.lineTo(width - 85, 75);
+                ctx.lineTo(width - 110, 125);
+                ctx.stroke();
+            }
+
+            const ax = slingshot.anchorX;
+            const ay = slingshot.anchorY;
+
+            // 彈弓後叉
+            ctx.strokeStyle = '#1E1B4B';
+            ctx.lineWidth = 14;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(ax, ay + 45);
+            ctx.lineTo(ax + 16, ay - 6);
+            ctx.stroke();
+            ctx.strokeStyle = '#92400E';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+
+            // 後側橡皮筋
+            if (!slingshot.launched) {
+                ctx.strokeStyle = '#F59E0B';
+                ctx.lineWidth = 4.5;
+                ctx.beginPath();
+                ctx.moveTo(ax + 16, ay - 6);
+                ctx.lineTo(slingshot.pigeonX - 10, slingshot.pigeonY + 4);
+                ctx.stroke();
+            }
+
+            // 拖曳時繪製星光拋物線預測虛線
+            if (slingshot.isDragging && state.absurdityPercent > 10) {
+                const dx = ax - slingshot.pigeonX;
+                const dy = ay - slingshot.pigeonY;
+                const simVx = (dx > 10 ? dx : Math.abs(dx) + 25) * 0.24;
+                const simVy = dy * 0.24 - 2.5;
+
+                ctx.fillStyle = 'rgba(253, 224, 71, 0.75)';
+                for (let t = 2; t <= 18; t += 2) {
+                    const px = slingshot.pigeonX + simVx * t;
+                    const py = slingshot.pigeonY + simVy * t + 0.5 * 0.42 * t * t;
+                    if (px > width || py > groundY) break;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 4 - t * 0.12, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 更新與繪製鴿子
+            if (slingshot.launched) {
+                slingshot.pigeonX += slingshot.vx;
+                slingshot.pigeonY += slingshot.vy;
+                slingshot.vy += 0.42;
+
+                if (slingshot.pigeonX > width + 40 || slingshot.pigeonY < -60) {
+                    startCarrierPigeonTransition();
+                }
+            }
+
+            const wingAngle = slingshot.launched ? Math.sin(Date.now() * 0.04) * 0.6 : 0;
+            drawPigeonCharacter(ctx, slingshot.pigeonX, slingshot.pigeonY, {
+                type: state.pigeonType,
+                absurdity: state.absurdityPercent,
+                wingFlap: wingAngle,
+                scale: 1.08
+            });
+
+            // 彈弓主幹與前叉
+            ctx.strokeStyle = '#1E1B4B';
+            ctx.lineWidth = 16;
+            ctx.beginPath();
+            ctx.moveTo(ax, groundY + 4);
+            ctx.lineTo(ax, ay + 45);
+            ctx.lineTo(ax - 16, ay - 4);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#B45309';
+            ctx.lineWidth = 10;
+            ctx.stroke();
+
+            // 前側橡皮筋（隨荒謬度變色）
+            if (!slingshot.launched) {
+                ctx.strokeStyle = state.absurdityPercent > 75 ? '#FB7185' : '#FDE047';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(ax - 16, ay - 4);
+                ctx.lineTo(slingshot.pigeonX - 8, slingshot.pigeonY + 6);
+                ctx.stroke();
+            }
+
+            // 羽毛粒子
+            feathers.forEach((f, idx) => {
+                f.x += f.vx;
+                f.y += f.vy;
+                f.vy += 0.12;
+                f.rot += f.vRot;
+                f.life -= 0.025;
+                if (f.life <= 0) {
+                    feathers.splice(idx, 1);
+                    return;
+                }
+                ctx.save();
+                ctx.translate(f.x, f.y);
+                ctx.rotate(f.rot);
+                ctx.globalAlpha = f.life;
+                ctx.fillStyle = '#FEF08A';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 7, 3, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        // 繪製第三階段：星輝斑斕飛鴿傳書過場畫面
+        function drawFlyingScene() {
+            carrierScene.timer++;
+
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+            bgGrad.addColorStop(0, '#0F172A');
+            bgGrad.addColorStop(1, '#1E1B4B');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, width, height);
+
+            // 高速掠過的星夜雲層
+            bgClouds.forEach(c => {
+                c.x -= 6.5;
+                if (c.x < -90) c.x = width + 90;
+                drawNightCloud(c.x, c.y, c.scale);
+            });
+
+            // 星光速度線
+            ctx.strokeStyle = 'rgba(254, 240, 138, 0.45)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 6; i++) {
+                const lineY = 45 + i * 58;
+                const lineX = ((width - carrierScene.timer * 15 + i * 170) % (width + 200)) - 100;
+                ctx.beginPath();
+                ctx.moveTo(lineX, lineY);
+                ctx.lineTo(lineX + 80, lineY);
+                ctx.stroke();
+            }
+
+            // 底部城市夜景剪影
+            const groundY = height - 35;
+            carrierScene.buildings.forEach(b => {
+                b.x -= 4.8;
+                if (b.x + b.w < 0) b.x = width + 20;
+                ctx.fillStyle = '#1E293B';
+                ctx.fillRect(b.x, groundY - b.h, b.w, b.h);
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(b.x, groundY - b.h, b.w, b.h);
+            });
+
+            ctx.fillStyle = '#090D1E';
+            ctx.fillRect(0, groundY, width, 35);
+
+            // 鴿子在星空中全力振翅飛行
+            const progress = carrierScene.timer / carrierScene.duration;
+            const targetX = progress < 0.55 ? width * 0.48 : width * 0.48 + (progress - 0.55) * width * 1.4;
+            carrierScene.pigeonX += (targetX - carrierScene.pigeonX) * 0.1;
+            carrierScene.pigeonY = height * 0.36 + Math.sin(carrierScene.timer * 0.18) * 14;
+
+            const flap = Math.sin(carrierScene.timer * 0.55) * 0.75;
+            drawPigeonCharacter(ctx, carrierScene.pigeonX, carrierScene.pigeonY, {
+                type: state.pigeonType,
+                absurdity: state.absurdityPercent,
+                wingFlap: flap,
+                scale: 1.15,
+                carryNote: !carrierScene.noteDropped
+            });
+
+            // 飛到一半丟下捲軸字條
+            if (progress >= 0.55 && !carrierScene.noteDropped) {
+                carrierScene.noteDropped = true;
+                carrierScene.noteX = carrierScene.pigeonX;
+                carrierScene.noteY = carrierScene.pigeonY + 32;
+                carrierScene.noteVy = 1.5;
+                spawnFeathers(carrierScene.pigeonX, carrierScene.pigeonY + 20, 10);
+            }
+
+            if (carrierScene.noteDropped) {
+                carrierScene.noteY += carrierScene.noteVy;
+                carrierScene.noteVy = Math.min(carrierScene.noteVy + 0.15, 4.5);
+                carrierScene.noteX += Math.sin(carrierScene.timer * 0.2) * 2.2;
+                carrierScene.noteRot = Math.sin(carrierScene.timer * 0.15) * 0.35;
+
+                ctx.save();
+                ctx.translate(carrierScene.noteX, carrierScene.noteY);
+                ctx.rotate(carrierScene.noteRot);
+                ctx.scale(1.55, 1.55);
+                ctx.fillStyle = '#FFFDF7';
+                ctx.strokeStyle = '#1E1B4B';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.roundRect(-18, -8, 36, 16, 5);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#E76F51';
+                ctx.fillRect(-4, -8, 8, 16);
+                ctx.restore();
+            }
+
+            if (carrierScene.timer >= carrierScene.duration) {
+                sfx.playUnfold();
+                switchStage('result');
+            }
+        }
+
+        // 主動畫迴圈
+        function mainAnimationLoop() {
+            drawStarfield();
+
+            if (state.stage === 'home') {
+                drawHomePigeonsScene();
+            } else if (state.stage === 'slingshot') {
+                drawSlingshotScene();
+            } else if (state.stage === 'flying') {
+                drawFlyingScene();
+            }
+
+            requestAnimationFrame(mainAnimationLoop);
+        }
+
+        /**
+         * ============================================================================
+         * 7. 第四階段：字條結果、一鍵複製、再想一個
+         * ============================================================================
+         */
+        function getAbsurdityTier(percent) {
+            if (percent <= 35) return { key: 'low', label: '合理藉口級' };
+            if (percent <= 75) return { key: 'mid', label: '開始扯淡級' };
+            return { key: 'high', label: '宇宙荒謬級' };
+        }
+
+        function pickExcuseText() {
+            const tier = getAbsurdityTier(state.absurdityPercent);
+            const pool = EXCUSE_DATABASE[state.pigeonType][tier.key];
+
+            let nextIdx = Math.floor(Math.random() * pool.length);
+            if (pool.length > 1 && nextIdx === state.currentExcuseIndex) {
+                nextIdx = (nextIdx + 1) % pool.length;
+            }
+            state.currentExcuseIndex = nextIdx;
+
+            return pool[nextIdx].replace(/\{event\}/g, state.eventName);
+        }
+
+        function renderExcuseResult() {
+            const tier = getAbsurdityTier(state.absurdityPercent);
+            document.getElementById('result-event-name').textContent = state.eventName;
+            document.getElementById('result-percent').textContent = state.absurdityPercent;
+            document.getElementById('result-tier-tag').textContent = tier.label;
+
+            const textarea = document.getElementById('excuse-textarea');
+            textarea.value = pickExcuseText();
+
+            const noteCard = document.getElementById('excuse-note-card');
+            noteCard.classList.remove('animate-unfold');
+            void noteCard.offsetWidth;
+            noteCard.classList.add('animate-unfold');
+        }
+
+        // 再想一個
+        document.getElementById('reroll-excuse-btn').addEventListener('click', () => {
+            sfx.playUnfold();
+            document.getElementById('excuse-textarea').value = pickExcuseText();
+
+            const noteCard = document.getElementById('excuse-note-card');
+            noteCard.classList.remove('animate-wiggle');
+            void noteCard.offsetWidth;
+            noteCard.classList.add('animate-wiggle');
+        });
+
+        // 一鍵複製
+        const copyBtn = document.getElementById('copy-excuse-btn');
+        const copyToast = document.getElementById('copy-toast');
+
+        copyBtn.addEventListener('click', () => {
+            const textarea = document.getElementById('excuse-textarea');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(textarea.value);
+                }
+            }
+            window.getSelection().removeAllRanges();
+
+            sfx.playSuccess();
+
+            const copyIcon = document.getElementById('copy-icon');
+            const copyText = document.getElementById('copy-text');
+            copyIcon.textContent = '🕊️';
+            copyText.textContent = '已複製！快傳出去！';
+            copyBtn.classList.remove('bg-[#E76F51]', 'hover:bg-[#D95D3F]');
+            copyBtn.classList.add('bg-[#10B981]');
+
+            copyToast.style.opacity = '1';
+            copyToast.style.transform = 'translate(-50%, 0)';
+
+            setTimeout(() => {
+                copyIcon.textContent = '📋';
+                copyText.textContent = '一鍵複製藉口';
+                copyBtn.classList.remove('bg-[#10B981]');
+                copyBtn.classList.add('bg-[#E76F51]', 'hover:bg-[#D95D3F]');
+
+                copyToast.style.opacity = '0';
+                copyToast.style.transform = 'translate(-50%, -20px)';
+            }, 2200);
+        });
+
+        // 重新拉弓
+        document.getElementById('reshoot-btn').addEventListener('click', () => {
+            sfx.playUnfold();
+            switchStage('slingshot');
+        });
+
+        // 回星空重新抓一隻鴿子
+        document.getElementById('reset-all-btn').addEventListener('click', () => {
+            sfx.playUnfold();
+            switchStage('home');
+        });
+
+        // 視窗尺寸自適應
+        window.addEventListener('resize', () => {
+            initStarfield();
+            if (state.stage === 'home') {
+                resizeHomeCanvas();
+            } else if (state.stage === 'slingshot' || state.stage === 'flying') {
+                resizeGameCanvas();
+            }
+        });
+
+        // 啟動應用程式
+        window.onload = function () {
+            initStarfield();
+            resizeHomeCanvas();
+            initRunningPigeons();
+            initGameEnvironment();
+            mainAnimationLoop();
+        };
+    </script>
+</body>
+</html>
